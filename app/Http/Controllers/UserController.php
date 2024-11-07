@@ -24,16 +24,14 @@ class UserController extends Controller
         if ($request->ajax()) {
             $data = $request->all();
 
-            $data['skills'] = implode(",", $data['skills']);
-            if (empty($data['id'])) {
-                unset($data['id']);
-            }
+            $data['skills'] = implode(",", $data['skills'] ?? []);
 
             if (isset($data['_token'])) {
                 unset($data['_token']);
             }
 
-            $result = (!empty($data['id'])) ? User::where('id', $data['id'])->update($data) : User::insert($data);
+            $result = User::updateorCreate(['id' => $data['id']], $data);
+
             echo json_encode([
                 'status' => $result,
                 'message' => $result ? (!empty($data['id']) ? 'User Updated Successfully' : 'User Created Successfully') : 'Something Went Wrong'
